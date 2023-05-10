@@ -157,17 +157,19 @@ vector<vector<int>> create_inverted_image(vector<vector<int>> image) {
 
 int calculate_eight_average(vector<vector<int>> image, int i, int j) {
     int sum = 0;
+    int cnt = 0;
 
-    for (int dy = -1; dy <= 1; dy++) { // Calculate sum of 8 pixels
+    for (int dy = -1; dy <= 1; dy++) { // Calculate average of 8 pixels (except center pixel)
         for (int dx = -1; dx <= 1; dx++) {
-            if (i + dy < 0 || i + dy >= height || j + dx < 0 || j + dx >= width) sum += 0;
-            else {
+            if (i + dy < 0 || i + dy >= height || j + dx < 0 || j + dx >= width || (dx == 0 && dy == 0)) continue;
+            else { // If pixel is not out of bounds
                 sum += image[i+dy][j+dx];
+                cnt++;
             }
         }
     }
 
-    return sum / 8;
+    return sum / cnt;
 }
 
 vector<vector<int>> create_reduced_noise_image(vector<vector<int>> image) {
@@ -185,10 +187,10 @@ vector<vector<int>> create_reduced_noise_image(vector<vector<int>> image) {
 int calculate_filtered_average(vector<vector<int>> image, vector<vector<double>> filter, int i, int j) {
     double sum = 0;
 
-    for (int dy = -1; dy <= 1; dy++) { // Calculate sum of 8 pixels
-        for (int dx = -1; dx <= 1; dx++) {
-            if (i + dy < 0 || i + dy >= height || j + dx < 0 || j + dx >= width) sum += 0;
-            else {
+    for (int dy = -1; dy <= 1; dy++) { // Calculate sum of 9 pixels 
+        for (int dx = -1; dx <= 1; dx++) { 
+            if (i + dy < 0 || i + dy >= height || j + dx < 0 || j + dx >= width) continue;
+            else { // If pixel is not out of bounds
                 sum += image[i+dy][j+dx] * filter[dy+1][dx+1];
             }
         }
