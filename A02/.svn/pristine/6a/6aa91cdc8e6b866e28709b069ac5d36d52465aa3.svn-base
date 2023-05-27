@@ -1,0 +1,15 @@
+/*
+Programa para fazer gráfico de um corpo sujeito a uma força de resistência do ar
+*/  
+
+const int MASSA = 1; // kg
+const int GRAVIDADE = 10; // m/s^2
+
+int main() {
+
+    int dt = 0.01; // intervalo de tempo
+    int t_max = 10; // tempo máximo
+
+
+    return 0;
+}

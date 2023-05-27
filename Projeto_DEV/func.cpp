@@ -1,13 +1,23 @@
-# include <iostream>
-# include <string>
-# include "func.h"
+#include <iostream>
+#include <vector>
+#include <algortithm>
 
 using namespace std;
 
-void imprime_int(int num){
-    cout << "O numero eh: " << num << endl;
-}
+vector<vector<double>> fil_med_square (vector<vector<double>> matriz, int linhas, int colunas);
+//matriz filtrada
+    vector<vector<double>> filtrada (matriz);
+    for (i = 0; i < linhas; i++){
+        for (j = 0; i < colunas, j++) {
+            vector<double> vizinhos;
 
-void imprime_float(float num){
-    cout << "O numero eh: " << num << endl;
-}
+
+
+    
+
+
+        }
+
+    }
+
+
