@@ -42,36 +42,23 @@ vector<vector<int>> read_image(string filename) {
     return image;
 }
 
-vector<int> histogram_absolute(vector<vector<int>> image) {
+void create_image_file(vector<vector<int>> image, string filename) {
     /*
-    Creates absolute histogram from image
+    Creates image file from image matrix
     */
 
-    vector<int> histogram(N+1, 0); // Create histogram vector
+    ofstream FILE(filename);
 
-    for (int i = 0; i < height; i++) { // Poupulate histogram
+    FILE << protocol << "\n"; // Protocol
+    FILE << width << " " << height << "\n"; // Width and height
+    FILE << N << "\n"; // Max value
+
+    for (int i = 0; i < height; i++) { 
         for (int j = 0; j < width; j++) {
-            histogram[image[i][j]]++;    
+            FILE << image[i][j] << " ";
         }
+        FILE << "\n";
     }
-    
-    return histogram;
-}
-
-vector<double> histogram_relative(vector<vector<int>> image) {
-    /*
-    Creates relative histogram from image
-    */
-
-    vector<int> histogram = histogram_absolute(image); // Get absolute histogram
-    vector<double> histogram_relative(N+1, 0.0); // Create relative histogram vector
-    double total = width * height; // Total number of pixels
-
-    for (int i = 0; i < N+1; i++) { // Poupulate relative histogram
-        histogram_relative[i] = (double) histogram[i] * 100 / (total);
-    }
-
-    return histogram_relative;
 }
 
 void print_image(vector<vector<int>> image) {
@@ -107,7 +94,55 @@ void print_double_histogram(vector<double> histogram) {
     }
 }
 
-int average_color(vector<vector<int>> image) {
+vector<vector<int>> sum_images(vector<vector<int>> image1, vector<vector<int>> image2) {
+    /*
+    Sums two images
+    */
+
+    vector<vector<int>> new_image(height, vector<int>(width));
+
+    for (int i = 0; i < height; i++) { // Sum images
+        for (int j = 0; j < width; j++) {
+            new_image[i][j] = image1[i][j] + image2[i][j];
+        }
+    }
+
+    return new_image;
+}
+
+vector<int> histogram_absolute(vector<vector<int>> image) {
+    /*
+    Creates absolute histogram from image
+    */
+
+    vector<int> histogram(N+1, 0); // Create histogram vector
+
+    for (int i = 0; i < height; i++) { // Poupulate histogram
+        for (int j = 0; j < width; j++) {
+            histogram[image[i][j]]++;    
+        }
+    }
+    
+    return histogram;
+}
+
+vector<double> histogram_relative(vector<vector<int>> image) {
+    /*
+    Creates relative histogram from image
+    */
+
+    vector<int> histogram = histogram_absolute(image); // Get absolute histogram
+    vector<double> histogram_relative(N+1, 0.0); // Create relative histogram vector
+    double total = width * height; // Total number of pixels
+
+    for (int i = 0; i < N+1; i++) { // Poupulate relative histogram
+        histogram_relative[i] = (double) histogram[i] * 100 / (total);
+    }
+
+    return histogram_relative;
+}
+
+double calculate_average_color(vector<vector<int>> image) {
     /*
     Calculates average color of image
     */
@@ -120,15 +155,15 @@ int average_color(vector<vector<int>> image) {
         sum += i * histogram[i];
     }
 
-    return (int) sum / total;
+    return sum / total;
 }
 
-double variance(vector<vector<int>> image) { 
+double calculate_variance(vector<vector<int>> image) { 
     /*
     Calculates color variance of image
     */
 
-    int average = average_color(image); 
+    double average = calculate_average_color(image); 
     double total = width * height * 1.0; 
     double sum = 0;
     vector<int> histogram = histogram_absolute(image);
@@ -140,40 +175,22 @@ double variance(vector<vector<int>> image) {
     return sum / (total - 1);
 }
 
-void create_image_file(vector<vector<int>> image, string filename) {
+double calculate_standard_deviation(vector<vector<int>> image) {
     /*
-    Creates image file from image matrix
+    Calculates standard deviation of vector
     */
 
-    ofstream FILE(filename);
-
-    FILE << protocol << "\n"; // Protocol
-    FILE << width << " " << height << "\n"; // Width and height
-    FILE << N << "\n"; // Max value
-
-    for (int i = 0; i < height; i++) { 
-        for (int j = 0; j < width; j++) {
-            FILE << image[i][j] << " ";
-        }
-        FILE << "\n";
-    }
+    double variance = calculate_variance(image);
+    return sqrt(variance);
 }
 
-vector<vector<int>> create_inverted_image(vector<vector<int>> image) {
+int calculate_median(vector<int> v) {
     /*
-    Creates inverted image from image matrix
+    Calculates median of vector
     */
 
-    vector<vector<int>> new_image(height, vector<int>(width));
-
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            new_image[i][j] = N - image[i][j];
-        }
-    }
-
-    create_image_file(new_image, INVERTED_IMAGE_FILENAME);
-    return new_image;
+    sort(v.begin(), v.end());
+    return v[v.size() / 2];
 }
 
 int calculate_eight_average(vector<vector<int>> image, int i, int j) {
@@ -198,22 +215,6 @@ int calculate_eight_average(vector<vector<int>> image, int i, int j) {
     return sum / cnt;
 }
 
-vector<vector<int>> create_reduced_noise_image(vector<vector<int>> image) {
-    /*
-    Creates reduced noise image from image matrix
-    */
-
-    vector<vector<int>> new_image(height, vector<int>(width));
-    for (int i = 0; i < height; i++) { // Calculate average of 8 pixels
-        for (int j = 0; j < width; j++) {
-            new_image[i][j] = calculate_eight_average(image, i, j);
-        }
-    }
-
-    create_image_file(new_image, REDUCED_NOISE_IMAGE_FILENAME);
-    return new_image;
-}
-
 int calculate_filtered_average(vector<vector<int>> image, vector<vector<double>> filter, int i, int j) {
     /*
     Calculates average of 9 pixels around pixel (i, j) using filter
@@ -234,49 +235,6 @@ int calculate_filtered_average(vector<vector<int>> image, vector<vector<double>>
     }
 
     return (int) sum * 9.0 / cnt; // Normalize sum
-}
-
-vector<vector<int>> create_box_filtering_image(vector<vector<int>> image) {
-    /*
-    Creates box filtered image from image matrix
-    */
-
-    vector<vector<double>> filter(3, vector<double>(3, 0.11111)); // Populate array with 1/9
-    vector<vector<int>> new_image(height, vector<int>(width));
-
-    for (int i = 0; i < height; i++) { // Calculate average of 9 pixels
-        for (int j = 0; j < width; j++) {
-            new_image[i][j] = calculate_filtered_average(image, filter, i, j);
-        }
-    }
-
-    create_image_file(new_image, BOX_FILTERED_IMAGE_FILENAME);
-    return new_image;
-}
-
-vector<vector<int>> sum_images(vector<vector<int>> image1, vector<vector<int>> image2) {
-    /*
-    Sums two images
-    */
-
-    vector<vector<int>> new_image(height, vector<int>(width));
-
-    for (int i = 0; i < height; i++) { // Sum images
-        for (int j = 0; j < width; j++) {
-            new_image[i][j] = image1[i][j] + image2[i][j];
-        }
-    }
-
-    return new_image;
-}
-
-int calculate_median(vector<int> v) {
-    /*
-    Calculates median of vector
-    */
-
-    sort(v.begin(), v.end());
-    return v[v.size() / 2];
 }
 
 int calculate_square_median(vector<vector<int>> image, int r, int i, int j) {
@@ -311,6 +269,59 @@ int calculate_diamond_median(vector<vector<int>> image, int r, int i, int j) {
     return calculate_median(diamond);
 }
 
+vector<vector<int>> create_inverted_image(vector<vector<int>> image) {
+    /*
+    Creates inverted image from image matrix
+    */
+
+    vector<vector<int>> new_image(height, vector<int>(width));
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            new_image[i][j] = N - image[i][j];
+        }
+    }
+
+    create_image_file(new_image, INVERTED_IMAGE_FILENAME);
+    return new_image;
+}
+
+
+vector<vector<int>> create_reduced_noise_image(vector<vector<int>> image) {
+    /*
+    Creates reduced noise image from image matrix
+    */
+
+    vector<vector<int>> new_image(height, vector<int>(width));
+    for (int i = 0; i < height; i++) { // Calculate average of 8 pixels
+        for (int j = 0; j < width; j++) {
+            new_image[i][j] = calculate_eight_average(image, i, j);
+        }
+    }
+
+    create_image_file(new_image, REDUCED_NOISE_IMAGE_FILENAME);
+    return new_image;
+}
+
+
+vector<vector<int>> create_box_filtering_image(vector<vector<int>> image) {
+    /*
+    Creates box filtered image from image matrix
+    */
+
+    vector<vector<double>> filter(3, vector<double>(3, 0.11111)); // Populate array with 1/9
+    vector<vector<int>> new_image(height, vector<int>(width));
+
+    for (int i = 0; i < height; i++) { // Calculate average of 9 pixels
+        for (int j = 0; j < width; j++) {
+            new_image[i][j] = calculate_filtered_average(image, filter, i, j);
+        }
+    }
+
+    create_image_file(new_image, BOX_FILTERED_IMAGE_FILENAME);
+    return new_image;
+}
+
 vector<vector<int>> create_square_median_filtering_image(vector<vector<int>> image, int r) {
     /*
     Creates square median filtered image from image matrix
@@ -332,7 +343,7 @@ vector<vector<int>> create_diamond_median_filtering_image(vector<vector<int>> im
     /*
     Creates diamond median filtered image from image matrix
     */
-   
+
     vector<vector<int>> new_image(height, vector<int>(width));
     
     for (int i = 0; i < height; i++) { // Calculate median of diamond

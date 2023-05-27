@@ -22,8 +22,9 @@ vector<vector<int>> sum_images(vector<vector<int>> image1, vector<vector<int>> i
 vector<int> histogram_absolute(vector<vector<int>> image); // Create absolute histogram
 vector<double> histogram_relative(vector<vector<int>> image); // Create relative histogram
 
-int average_color(vector<vector<int>> image); // Calculate average color
-double variance(vector<vector<int>> image); // Calculate variance
+double calculate_average_color(vector<vector<int>> image); // Calculate average color
+double calculate_variance(vector<vector<int>> image); // Calculate variance
+double calculate_standard_deviation(vector<vector<int>> image); // Calculate standard deviation
 int calculate_median(vector<int> values); // Calculate median of a vector
 
 int calculate_eight_average(vector<vector<int>> image, int i, int j); // Calculate eight average (8 pixels)
