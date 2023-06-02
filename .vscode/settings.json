@@ -2,6 +2,7 @@
     "files.associations": {
         "vector": "cpp",
         "iosfwd": "cpp",
-        "p01.C": "cpp"
+        "p01.C": "cpp",
+        "array": "cpp"
     }
 }
