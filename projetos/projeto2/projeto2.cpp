@@ -1,7 +1,7 @@
 # include <iostream> // for cout, endl
 # include <array> // for array
 # include <vector> // for vector
-# include <cmath> // for sqrt, pow, M_PI
+# include <cmath> // for sqrt, pow, M_PI, round
 # include <algorithm> // for sort
 
 // ROOT
@@ -12,8 +12,10 @@
 
 using namespace std;
 
+const int Z = 100; // cm
+
 struct cell { 
-    array<float, 3> center_coordinates {0, 0, 100}; // Cell center (cm)
+    array<float, 3> center_coordinates {0, 0, Z}; // Cell center (cm)
     float area; // Cell area (cm^2)
     float power; // Cell incident power (W)
 };
@@ -57,9 +59,11 @@ class lightmap {
         float CellPower(cell C); // return average cell power
         void UpdatePower(); // update cell power
         float FindQuotient(vector<cell> ordered_cells) const; // return quotient between max and median cell power
-        void CreateHistogram() const; // create histogram of cell power
+        void CreateHistogram(string filename) const; // create histogram of cell power
 
     private:
+        void initializeGrid(array<int,2> ncell, array<float,2> size); // initialize grid cells
+
         vector<vector<cell>> GRID; // cells grid
         vector<lightsource> SOURCES; // light sources
         array<float, 2> SIZE; // plane dimensions (cm)
@@ -68,43 +72,13 @@ class lightmap {
 
 // Constructors
 lightmap::lightmap(array<int,2> ncell, array<float,2> size) {
-    GRID.resize(ncell[0]);
-    for (int i = 0; i < ncell[0]; i++) {
-        GRID[i].resize(ncell[1]);
-    }
-    SIZE = size;
-    NORMAL = {0, 0, 1};
-
-    for (int i = 0; i < ncell[0]; i++) {
-        for (int j = 0; j < ncell[1]; j++) {
-            cell& C = GRID[i][j];
-            C.center_coordinates[0] = (i+0.5)*size[0]/ncell[0];
-            C.center_coordinates[1] = (j+0.5)*size[1]/ncell[1];
-            C.area = size[0]*size[1]/(ncell[0]*ncell[1]);
-            C.power = 0;
-        }
-    }
+    initializeGrid(ncell, size);
 }
 
 lightmap::lightmap(lightsource S, array<int,2> ncell, array<float,2> size) {
-    GRID.resize(ncell[0]);
-    for (int i = 0; i < ncell[0]; i++) {
-        GRID[i].resize(ncell[1]);
-    }
-    SIZE = size;
-    NORMAL = {0, 0, 1};
+    initializeGrid(ncell, size);
     AddLightSource(S);
-
-    for (int i = 0; i < ncell[0]; i++) { // TODO: CAN BE OPTIMIZED (SAME AS OTHER CONSTRUCTOR)
-        for (int j = 0; j < ncell[1]; j++) {
-            cell& C = GRID[i][j];
-            C.center_coordinates[0] = (i+0.5)*size[0]/ncell[0];
-            C.center_coordinates[1] = (j+0.5)*size[1]/ncell[1];
-            C.area = size[0]*size[1]/(ncell[0]*ncell[1]);
-            C.power = 0;
-        }
-    }
-};
+}
 
 // Getters
 pair<int,int> lightmap::GetCellIndex(float x, float y) const {
@@ -170,7 +144,6 @@ float lightmap::GetTotalPower() const {
 }
 
 // other functions
-
 void lightmap::AddLightSource(lightsource S) {
     SOURCES.push_back(S);
 }
@@ -227,37 +200,70 @@ float lightmap::FindQuotient(vector<cell> ordered_cells) const {
     return max_power / median_power;
 }
 
-void lightmap::CreateHistogram() const {
+void lightmap::CreateHistogram(string filename) const {
     vector<cell> ordered_cells = GetOrderedCells();
 
-    TH2F *h = new TH2F("h", "h", GRID.size(), 0, SIZE[0], GRID[0].size(), 0, SIZE[1]);
+    TH2F *powerHist = new TH2F("Power (W)", "Lightmap", GRID.size(), 0, SIZE[0], GRID[0].size(), 0, SIZE[1]);
+    powerHist->SetXTitle("x (cm)");
+    powerHist->SetYTitle("y (cm)");
+
     for (int i = 0; i < GRID.size(); i++) {
         for (int j = 0; j < GRID[0].size(); j++) {
-            h->SetBinContent(i+1, j+1, GRID[i][j].power);
+            powerHist->SetBinContent(i + 1, j + 1, GRID[i][j].power);
         }
     }
 
     TCanvas *c = new TCanvas("c", "c", 800, 600);
-    h->Draw("colz");
-    c->SaveAs("histogram.png");
+    powerHist->Draw("colz");
+    c->SaveAs(filename.c_str());
 }
 
-float GetTotalPowerSize(array<float, 2> size) {
+// Private functions
+void lightmap::initializeGrid(array<int,2> ncell, array<float,2> size) {
+    GRID.resize(ncell[0]);
+    for (int i = 0; i < ncell[0]; i++) {
+        GRID[i].resize(ncell[1]);
+    }
+    SIZE = size;
+    NORMAL = {0, 0, 1};
+
+    for (int i = 0; i < ncell[0]; i++) {
+        for (int j = 0; j < ncell[1]; j++) {
+            cell& C = GRID[i][j];
+            C.center_coordinates[0] = (i+0.5)*size[0]/ncell[0];
+            C.center_coordinates[1] = (j+0.5)*size[1]/ncell[1];
+            C.area = size[0]*size[1]/(ncell[0]*ncell[1]);
+            C.power = 0;
+        }
+    }
+}
+
+float GetTotalPowerSize(array<float, 2> dimensions, array<float, 2> size) {
     lightsource S;
-    S.coordinates = {100, 250, 100}; // cm
-    S.power = 100; // W
+    S.coordinates = {0, 100, 100}; // default location (cm)
+    S.power = 100; // default power (W)
 
-    lightmap L(S, {10, 10}, size);
+    array<int, 2> ncell = {(int) round(dimensions[0]/size[0]), (int) round(dimensions[1]/size[1])};
+    lightmap L(S, ncell, size);
+    
     L.UpdatePower();
-
     return L.GetTotalPower();
 }
 
 void CreateGraph(vector<float> x, vector<float> y, string name) {
-    cout << y[0] << endl;
-    TGraph *g = new TGraph(x.size(), &x[0], &y[0]);
+    TGraph *g = new TGraph(x.size(), &x[0], &y[0]); 
     TCanvas *c = new TCanvas("c", "c", 800, 600);
-    g->Draw("AP");
+
+    // Set x-axis label
+    g->GetXaxis()->SetTitle("Size (cm)");
+
+    // Set y-axis label
+    g->GetYaxis()->SetTitle("Power (W)");
+
+    // Set graph title
+    g->SetTitle("Power vs cell size");
+
+    g->Draw("AC*");
     c->SaveAs(name.c_str());
 }
 
@@ -294,16 +300,16 @@ int main() {
     cout << "Cell power: " << C.power << " W" << endl;
 
     // Create histogram of cell power
-    L.CreateHistogram();
+    L.CreateHistogram("histogram.pdf");
 
     // 20 cm, 12.5 cm, 6.25 cm, 4 cm, 2.5 cm, 2 cm, 1 cm
     vector<float> sizes = {20, 12.5, 6.25, 4, 2.5, 2, 1};
     vector<float> total_power;
 
     for (float s : sizes) {
-        total_power.push_back(GetTotalPowerSize({s, s}));
+        total_power.push_back(GetTotalPowerSize(size, {s, s}));
     }
 
-    CreateGraph(sizes, total_power, "total_power.png");
+    CreateGraph(sizes, total_power, "total_power.pdf");
     return 0;
 }
