@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++17 `root-config --cflags --libs`
+CFLAGS = -std=c++17 Lightmap.cpp `root-config --cflags --libs`
 
 .PHONY: all run clean
 
