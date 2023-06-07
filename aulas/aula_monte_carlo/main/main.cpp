@@ -1,9 +1,12 @@
 # include "Functor.hpp"
 # include "MyFunc.hpp"
 # include "IntegDeriv.hpp"
+# include <iostream>
+
+using namespace std;
 
 int main() {
-    Functor *f = new MyFunc("f(x) = x^2");
-    cout << f(1) << endl;
+    Functor F("MyFunc");
+    cout << F(1) << endl;
     return 0;
 }
