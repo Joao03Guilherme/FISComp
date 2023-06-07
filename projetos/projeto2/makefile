@@ -1,18 +1,27 @@
 CC = g++
-CFLAGS = -std=c++17 Lightmap.cpp `root-config --cflags --libs`
+CFLAGS = -std=c++17 -Wall
 
-.PHONY: all run clean
+ROOT_INC = `root-config --cflags`
+ROOT_LIBS = `root-config --libs`
+SRC_DIR = src
+MAIN_DIR = main
+PDF_DIR = pdfs
 
-all: run clean
+SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
+HEADER_FILES = $(wildcard $(SRC_DIR)/*.hpp)
+MAIN_SRC = $(MAIN_DIR)/main.cpp
+EXECUTABLE = project
 
-run: projeto2.exe
-	./projeto2.exe
+all: $(EXECUTABLE) run move_pdfs clean
 
-projeto2.exe: projeto2.cpp
-	$(CC) projeto2.cpp -o projeto2.exe $(CFLAGS)
+$(EXECUTABLE): $(SRC_FILES) $(HEADER_FILES) $(MAIN_SRC)
+	$(CC) $(CFLAGS) -I$(SRC_DIR) $(MAIN_SRC) $(SRC_FILES) $(ROOT_INC) $(ROOT_LIBS) -o $(EXECUTABLE)
+
+run:
+	./$(EXECUTABLE)
+
+move_pdfs:
+	mv *.pdf $(PDF_DIR)
 
 clean:
-	rm -f projeto2.exe
-
-cleanpdfs:
-	rm -f total_power.pdf histogram.pdf
+	rm -f $(EXECUTABLE)

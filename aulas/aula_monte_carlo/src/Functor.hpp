@@ -2,6 +2,7 @@
 # define __FUNCTOR_HPP__
 
 # include <string>
+# include <array>
 # include "TCanvas.h"
 
 using namespace std;
@@ -9,7 +10,7 @@ using namespace std;
 class Functor {
     public:
         Functor(string name = "");
-        virtual ~Functor();
+        ~Functor();
 
         virtual double operator()(double x);
         virtual void Draw(int n_points, array<double, 2> range, array<string, 2> axis_labels);
