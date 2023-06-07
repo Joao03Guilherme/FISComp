@@ -34,8 +34,23 @@ class FCmatrixAlgo
               Matrix<double, Dynamic, Dynamic>& M, // Matrix Coefficients
               Matrix<double, Dynamic, 1>& P, // Row order indexing
               bool pivot = false // activate pivoting
+        );   
+
+        static void IterativeJacobi(
+            Matrix<double, Dynamic, Dynamic>& M, // Matrix Coefficients
+            Matrix<double, Dynamic, 1>& C, // Matrix Constants
+            Matrix<double, Dynamic, 1>& X, // starting solution
+            int& itmax, //nb of max iterations
+            double tol // tolerance on convergence
         );
-       
+
+        static void IterativeGaussSeidel(
+            Matrix<double, Dynamic, Dynamic>& M, // Matrix Coefficients
+            Matrix<double, Dynamic, 1>& C, // Matrix Constants
+            Matrix<double, Dynamic, 1>& X, // starting solution
+            int& itmax, //nb of max iterations
+            double tol // tolerance on convergence
+        );
 };
 
 # endif

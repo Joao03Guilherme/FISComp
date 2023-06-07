@@ -11,9 +11,9 @@ PDF_DIR = pdfs
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 HEADER_FILES = $(wildcard $(SRC_DIR)/*.hpp)
 MAIN_SRC = $(MAIN_DIR)/main.cpp
-EXECUTABLE = project
+EXECUTABLE = project.exe
 
-all: $(EXECUTABLE) run move_pdfs clean
+all: $(EXECUTABLE) run clean 
 
 $(EXECUTABLE): $(SRC_FILES) $(HEADER_FILES) $(MAIN_SRC)
 	$(CC) $(CFLAGS) -I$(SRC_DIR) $(MAIN_SRC) $(SRC_FILES) $(EIGEN_INC) $(ROOT_INC) $(ROOT_LIBS) -o $(EXECUTABLE)
