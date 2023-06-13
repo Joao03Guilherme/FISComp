@@ -93,17 +93,23 @@ void FCmatrixAlgo::GaussEliminationPivot(
     }
 }
 
-// Implement doolitle LU decomposition solver
 void FCmatrixAlgo::LUdecomposition(
     Matrix<double, Dynamic, Dynamic>& M, // Matrix Coefficients
     Matrix<double, Dynamic, 1>& P, // Row order indexing
-    bool pivot // activate pivoting
+    bool pivot // pivoting
 )
 {
     // Get matrix size
     int n = M.rows();
 
-    // Forward elimination
+    // Initialize permutation matrix
+    P.resize(n);
+    for (int i = 0; i < n; i++)
+    {
+        P(i) = i;
+    }
+
+    // LU decomposition
     for (int k = 0; k < n - 1; k++)
     {
         if (pivot)
@@ -119,7 +125,7 @@ void FCmatrixAlgo::LUdecomposition(
             }
             if (p != k)
             {
-                for (int j = k; j < n; j++)
+                for (int j = 0; j < n; j++)
                 {
                     double temp = M(p, j);
                     M(p, j) = M(k, j);

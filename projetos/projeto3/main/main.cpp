@@ -38,7 +38,7 @@ int main() {
 
     eqSolver.setM(M);
     eqSolver.setC(C);
-    cout << "LU solver" << endl;
+    cout << "LU solver" << endl; // TODO: Falta implementar
     cout << eqSolver.LUSolver() << endl;
 
     eqSolver.setM(M);

@@ -51,8 +51,8 @@ const Matrix<double, Dynamic, 1>& EqSolver::GaussSolver(bool pivot) {
 
 const Matrix<double, Dynamic, 1>& EqSolver::LUSolver(bool pivot) {
     FCmatrixAlgo solver;
-    solver.LUdecomposition(M, P, pivot);
-    solver.GaussElimination(M, C);
+    solver.LUdecomposition(M, P, pivot)
+    // TODO: FALTA IMPLEMENTAR;
     return C;
 }
 
