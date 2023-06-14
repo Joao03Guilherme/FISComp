@@ -5,7 +5,7 @@
 
 class ODEpoint : public Xvar {
     public:
-        ODEpoint() : t(0) {;}
+        ODEpoint() : t(-1) {;}
         ODEpoint(double t_, Xvar a_) : t(t_), Xvar(a_) {;}
         ODEpoint(double t_, const std::vector<double>& v) : t(t_), Xvar(v) {;}
         ODEpoint(double t_, const std::initializer_list<double>& v) : t(t_), Xvar(v) {;}

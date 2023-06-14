@@ -11,14 +11,14 @@
 
 using namespace std;
 
-const double g = 9.80665;
+const double g = 9.8;
 const double l = 10;
 const double k = 0.2;
 
 /*
 DIFFERENTIAL EQUATION
 
-d^2 y / dt^2 = -g
+dy^2/dt^2 = -g
 
 dy/dt = v
 dv/dt = -g
@@ -37,13 +37,12 @@ int main() {
     ODEsolver s;
     s.SetODEfunc({dydt, dvdt});
 
-    double dt = 0.1;
-    ODEpoint i(0, {200, 150}); // Initial point
-
-    s.Euler(i, dt, 30);
-    s.PredictorCorrector(i, dt, 30);
-    s.RK2(i, dt, 30);
-    s.RK4(i, dt, 30);
+    double dt = 0.01;
+    ODEpoint i(0, {200, 150});
+    s.Euler(i, dt, 50);
+    s.PredictorCorrector(i, dt, 50);
+    s.RK2(i, dt, 50);
+    s.RK4(i, dt, 50);
     
     array<vector<double>, 4> v;
     vector<double> t;
