@@ -24,14 +24,14 @@ double dydt(ODEpoint p) {
 }
 
 double dvdt(ODEpoint p) {
-    return - k / m * p[1] - g;
+    return k / m * p[1] * p[1] - g;
 }
 
 int main() {
     ODEpoint p0(0, {2000, 0});
     ODEsolver S({dydt, dvdt});
 
-    double dt = 0.1, T = 2.0;
+    double dt = 0.1, T = 30;
     S.RK4(p0, dt, T);
 
     vector<double> rk4x, rk4y, rk4z;
