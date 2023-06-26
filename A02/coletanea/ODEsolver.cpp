@@ -1,7 +1,8 @@
-# include "ODEsolver.hpp"
-using namespace std;
+#include "ODEsolver.hpp"
 
-void ODEsolver::SetODEfunc(const vector<std::function<double(ODEpoint)>>& F_) {
+ODEsolver::ODEsolver(const vector<function<double(ODEpoint)>>& F_) : F(F_){;}
+
+void ODEsolver::SetODEfunc(const vector<function<double(ODEpoint)>>& F_) {
     F = F_;
 }
 
@@ -14,6 +15,7 @@ const vector<ODEpoint>& ODEsolver::Euler(ODEpoint i, double step, double T){
     }
 
     MS["euler"] = V;
+
     return MS["euler"];
 }
 
@@ -26,8 +28,8 @@ const vector<ODEpoint>& ODEsolver::PredictorCorrector(ODEpoint i, double step, d
         V.push_back(Pcur+(Func(Pcur)+Func(Ppred))*0.5*step);
     }
 
-    MS["trapezoidal"] = V;
-    return MS["trapezoidal"];
+    MS["predictor-corrector"] = V;
+    return MS["predictor-corrector"];
 }
 
 const vector<ODEpoint>& ODEsolver::LeapFrog(ODEpoint i, double step, double T){
@@ -59,8 +61,8 @@ const vector<ODEpoint>& ODEsolver::RK2(ODEpoint i, double step, double T){
 	ODEpoint K2 = Func(Pcur+K1*0.5)*step;
         V.push_back(Pcur+K2);
     }
-    MS["rk2"] = V;
-    return MS["rk2"];
+    MS["RK2"] = V;
+    return MS["RK2"];
 }
 
 const vector<ODEpoint>& ODEsolver::RK4(ODEpoint i, double step, double T){
@@ -74,8 +76,8 @@ const vector<ODEpoint>& ODEsolver::RK4(ODEpoint i, double step, double T){
 	ODEpoint K4 = Func(Pcur+K3)*step;
         V.push_back(Pcur+(K1+K2*2+K3*2+K4)*(1./6));
     }
-    MS["rk4"] = V;
-    return MS["rk4"];
+    MS["RK4"] = V;
+    return MS["RK4"];
 }
 
 ODEpoint ODEpoint::operator+(ODEpoint P){

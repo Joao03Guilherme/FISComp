@@ -24,7 +24,7 @@ double dydt(ODEpoint p) {
 }
 
 double dvdt(ODEpoint p) {
-    return k / m * p[1] - g;
+    return - k / m * p[1] - g;
 }
 
 int main() {
@@ -42,13 +42,17 @@ int main() {
         rk4z.push_back(p[1]);
     }
 
-    TCanvas C("canvas", "canvas", 1000, 1000);
+    TCanvas c("canvas", "canvas", 1200, 1000);
     TGraph g1(rk4x.size(), rk4x.data(), rk4y.data());
     TGraph g2(rk4x.size(), rk4x.data(), rk4z.data());
 
-    g2.Draw("APL");
-    g1.Draw("PL");
+    c.Divide(2, 1);
+    c.cd(1);
+    g2.Draw("AL");
 
-    C.SaveAs("4.6.5.png");
+    c.cd(2);
+    g1.Draw("AL");
+
+    c.SaveAs("4.6.5.png");
     return 0;
 }

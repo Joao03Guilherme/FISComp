@@ -1,25 +1,28 @@
-# ifndef ODEpoint_HPP
-# define ODEpoint_HPP
+#ifndef __ODEPOINT__
+#define __ODEPOINT__
 
-# include "Xvar.hpp"
+#include <vector>
+#include <iostream>
 
-class ODEpoint : public Xvar {
+
+class ODEpoint{
     public:
-        ODEpoint() : t(0) {;}
-        ODEpoint(double t_, Xvar a_) : t(t_), Xvar(a_) {;}
-        ODEpoint(double t_, const std::vector<double>& v) : t(t_), Xvar(v) {;}
-        ODEpoint(double t_, const std::initializer_list<double>& v) : t(t_), Xvar(v) {;}
+        ODEpoint(); 
+        ODEpoint(double t, const std::vector<double>& var): time{t},x{var} {} 
 
-        void SetODEpoint(double t_, Xvar& p);
-        void SetODEpoint(double t_, const std::initializer_list<double>& v);
+        const double& T() const {return time;} //(const) 1º: ñ altero variável, 2º: método não altera variáveis da classe
+        std::vector<double>& X() {return x;} //accessor to x
+        double& operator[](size_t i){return x[i];} // X[i]
+	ODEpoint operator+(ODEpoint);
+	ODEpoint operator*(double);
+
+        friend std::ostream& operator<< (std::ostream&, const ODEpoint&);
+
         void SetODEpoint(double t_, std::vector<double> v);
-        double& T() { return t;} // accessor to time
-
-        ODEpoint operator+(ODEpoint& p);
-        ODEpoint operator*(double a);
 
     private:
-        double t; // time
+        double time;
+	std::vector<double> x;
 };
 
-# endif
+#endif
