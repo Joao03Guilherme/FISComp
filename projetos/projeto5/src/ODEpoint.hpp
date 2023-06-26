@@ -15,7 +15,8 @@ class ODEpoint : public Xvar {
         void SetODEpoint(double t_, std::vector<double> v);
         double& T() { return t;} // accessor to time
 
-        ODEpoint operator+(ODEpoint& p);
+        ODEpoint operator+(ODEpoint p);
+        ODEpoint operator*(double a);
 
     private:
         double t; // time

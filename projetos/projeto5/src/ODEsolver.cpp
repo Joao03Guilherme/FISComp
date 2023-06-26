@@ -1,111 +1,106 @@
 # include "ODEsolver.hpp"
 using namespace std;
 
+ODEsolver::ODEsolver(const vector<std::function<double(ODEpoint)>>& F_) : F(F_) {;}
+
+ODEsolver::ODEsolver(const initializer_list<std::function<double(ODEpoint)>>& F_) : F(F_) {;}
+
 void ODEsolver::SetODEfunc(const vector<std::function<double(ODEpoint)>>& F_) {
     F = F_;
 }
 
-const vector<ODEpoint>& ODEsolver::Euler(ODEpoint i, double step, double T) { // Initial point, step size, final time
-    vector<ODEpoint> v;
-    v.push_back(i);
-
-    while (i.T() < T) {
-        for (int j = 0; j < F.size(); j++) {
-            i[j] += step * F[j](i); // Euler step
-        }
-
-        i.T() += step;
-        v.push_back(i);
+const vector<ODEpoint>& ODEsolver::Euler(ODEpoint i, double step, double T){
+    vector <ODEpoint> V;
+    V.push_back(i); // create initial ODEpoint from whom we calculate the next
+    while (V.back().T() < T){
+        ODEpoint Pcur = V.back();
+        V.push_back(Pcur+Func(Pcur)*step);
     }
 
-    MS["euler"] = v;
-    return v;
+    MS["euler"] = V;
+    return MS["euler"];
 }
 
-const vector<ODEpoint>& ODEsolver::PredictorCorrector(ODEpoint i, double step, double T) {
-    vector<ODEpoint> v;
-    v.push_back(i);
-
-    while (i.T() < T) {
-        ODEpoint p = i;
-        for (int j = 0; j < F.size(); j++) {
-            p[j] += step * F[j](i); // predictor step (using euler)
-        }
-
-        for (int j = 0; j < F.size(); j++) {
-            i[j] += step * (F[j](i) + F[j](p))/2; // corrector step
-        }
-
-        i.T() += step;
-        v.push_back(i);
+const vector<ODEpoint>& ODEsolver::PredictorCorrector(ODEpoint i, double step, double T){
+    vector <ODEpoint> V;
+    V.push_back(i); // create initial ODEpoint from whom we calculate the next
+    while (V.back().T() < T){
+        ODEpoint Pcur = V.back();
+        ODEpoint Ppred = Pcur+Func(Pcur)*step;
+        V.push_back(Pcur+(Func(Pcur)+Func(Ppred))*0.5*step);
     }
 
-    MS["predictor-corrector"] = v;
-    return v;
+    MS["predictor-corrector"] = V;
+    return MS["predictor-corrector"];
 }
 
-/*
-TODO IMPLEMENT LEAP FROG
-*/
+const vector<ODEpoint>& ODEsolver::LeapFrog(ODEpoint i, double step, double T){
+    vector <ODEpoint> V;
+    V.push_back(i);
+    int n = 0;
+    ODEpoint P0 = V.back();
+    ODEpoint P1 = P0+Func(P0)*step;
+    V.push_back(P1);
 
-const vector<ODEpoint>& ODEsolver::RK2(ODEpoint i, double step, double T) {
-    vector<ODEpoint> v;
-    v.push_back(i);
-
-    while (i.T() < T) {
-        vector<array<double, 2>> K(F.size());
-        ODEpoint p = i;
-
-        for (int j = 0; j < F.size(); j++) {
-            K[j][0] = step * F[j](i); // K1
-            p[j] += K[j][0]/2;
-        }
-
-        for (int j = 0; j < F.size(); j++) {
-            K[j][1] = step * F[j](p); // K2
-            i[j] += K[j][1];
-        }
-        
-        i.T() += step;
-        v.push_back(i);
+    while (V.back().T() < T){
+        ODEpoint Pprev = V[V.size()-2];
+        ODEpoint Pcur = V.back();
+        ODEpoint Pnext = Pprev+Func(Pcur)*2*step;
+        V.push_back(Pnext);        
     }
 
-    MS["RK2"] = v;
-    return v;
+    MS["leapfrog"] = V;
+    return MS["leapfrog"];
 }
 
-const vector<ODEpoint>& ODEsolver::RK4(ODEpoint i, double step, double T) {
-    vector<ODEpoint> v;
-    v.push_back(i);
-
-    while (i.T() < T) {
-        vector<array<double, 4>> K(F.size());
-        ODEpoint p = i;
-
-        for (int j = 0; j < F.size(); j++) {
-            K[j][0] = step * F[j](i); // K1
-            p[j] += K[j][0]/2;
-        }
-
-        for (int j = 0; j < F.size(); j++) {
-            K[j][1] = step * F[j](p); // K2
-            p[j] = i[j] + K[j][1]/2;
-        }
-
-        for (int j = 0; j < F.size(); j++) {
-            K[j][2] = step * F[j](p); // K3
-            p[j] = i[j] + K[j][2];
-        }
-
-        for (int j = 0; j < F.size(); j++) {
-            K[j][3] = step * F[j](p); // K4
-            i[j] += (K[j][0] + 2*K[j][1] + 2*K[j][2] + K[j][3])/6;
-        }
-        
-        i.T() += step;
-        v.push_back(i);
+const vector<ODEpoint>& ODEsolver::RK2(ODEpoint i, double step, double T){
+    vector<ODEpoint> V;
+    V.push_back(i);
+    while(V.back().T() < T){
+        ODEpoint Pcur = V.back();
+	ODEpoint K1 = Func(Pcur)*step;
+	ODEpoint K2 = Func(Pcur+K1*0.5)*step;
+        V.push_back(Pcur+K2);
     }
+    MS["RK2"] = V;
+    return MS["RK2"];
+}
 
-    MS["RK4"] = v;
-    return v;
+const vector<ODEpoint>& ODEsolver::RK4(ODEpoint i, double step, double T){
+    vector<ODEpoint> V;
+    V.push_back(i);
+    while(V.back().T() < T){
+        ODEpoint Pcur = V.back();
+	ODEpoint K1 = Func(Pcur)*step;
+	ODEpoint K2 = Func(Pcur+K1*0.5)*step;
+	ODEpoint K3 = Func(Pcur+K2*0.5)*step;
+	ODEpoint K4 = Func(Pcur+K3)*step;
+        V.push_back(Pcur+(K1+K2*2+K3*2+K4)*(1./6));
+    }
+    MS["RK4"] = V;
+    return MS["RK4"];
+}
+
+ODEpoint ODEpoint::operator+(ODEpoint P){
+	vector<double> var(x);
+	for (int i = 0; i < var.size(); ++i) {
+		var[i] += P[i];
+	}
+	return {t+P.t, var};
+}
+
+ODEpoint ODEpoint::operator*(double d){
+	vector<double> var(x);
+	for (int i = 0; i < var.size(); ++i) {
+		var[i] *= d;
+	}
+	return {t*d, var};
+}
+
+ODEpoint ODEsolver::Func(ODEpoint P){
+	ODEpoint P0(1, P.X());
+	for (int i = 0; i < F.size(); ++i) {
+		P0[i] = F[i](P);
+	}
+	return P0;
 }

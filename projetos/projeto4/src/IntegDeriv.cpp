@@ -6,14 +6,16 @@ void IntegDeriv::integral_trapezoidal(double xi, double xf, int div, double& Int
     Integral = 0;
     Error = 0;
     double dx = (xf - xi) / div;
+    double sum = 0.0;
 
-    for (int i = 0; i < div; i++) {
+    for (int i = 1; i < div; i++) {
         double x0 = xi + i * dx;
         double x1 = xi + (i + 1) * dx;
 
-        Integral += dx / 2 * (F(x0) + F(x1));
         Error += -pow(dx, 3) / 12 * second_derivative_five_point(x0 + dx/2, dx/2);
     }
+
+    Integral = dx / 2 * (F(xi) + 2 * sum + F(xf));
 }
 
 void IntegDeriv::integral_simpson(double xi, double xf, int div, double& Integral, double& Error) {
