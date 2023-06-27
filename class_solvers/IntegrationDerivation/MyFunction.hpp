@@ -11,6 +11,11 @@ class MyFunction : public Functor {
         double operator()(double x) {
             return pow(x, 4) * log(x + sqrt(1 + pow(x, 2))); // Function given in the pdf
         }
+
+        friend std::ostream& operator << (std::ostream& s, const MyFunction& F){
+            s << "f(x) = x^4 * ln(x + sqrt(1 + x^2))";
+            return s;
+        }
 };
 
 #endif

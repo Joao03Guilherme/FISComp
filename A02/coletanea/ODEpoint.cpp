@@ -1,8 +1,4 @@
 #include "ODEpoint.hpp"
-#include <iostream>
-#include <vector>
-
-// ODEpoint methods
 
 ODEpoint::ODEpoint(){ time = -1;}
 

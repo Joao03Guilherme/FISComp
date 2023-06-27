@@ -1,22 +1,38 @@
 #ifndef __INTEGDERIV__
 #define __INTEGDERIV__
-
-#include "Functor.hpp"
+# include "Functor.hpp"
+# include <vector>
+# include <random>
+# include <functional>
 
 class IntegDeriv {
     public:
-        IntegDeriv(Functor& f);
+        IntegDeriv(Functor&);
         ~IntegDeriv() = default;
 
         // integration methods
-        void integral_trapezoidal(double xi, double xf, int div, double& Integral, double& Error);
-        void integral_simpson(double xi, double xf, int div, double& Integral, double& Error);
+	    void MidRule(double xi, double xf, double& Integral, double&
+        Error);
 
-        // Derivation methods
-        double second_derivative_three_point(double x, double h=0.01);
-        double second_derivative_five_point(double x, double h=0.01);
+        void TrapezoidalRule(double xi, double xf, double& Integral, double&
+        Error, int numPoints = 1000);
 
-        double fourth_derivative(double x, double h=0.01);
+        void simpsonRule(double xi, double xf, double& Integral, double&
+        Error);
+
+	    void RombergRule(double xi, double xf, double& Integral, double&
+        Error, int order=2);
+
+        void MonteCarloRegion(double xi, double xf, double yi, double yf, std::function<bool(double, double)> region,
+        double& Integral, double& Error, int numPoints = 1000);
+
+        // derivative methods
+        double DF_fo(double x0, double dx); // point where we are differentiating, step
+        double DF_central(double x0, double dx);
+        double DF_bck(double x0, double dx);
+        double D2F_3point(double x0, double dx = 3e-4); // for the second derivatives, dx must be ~3e-4
+        double D2F_5point(double x0, double dx = 3e-4);
+        double D4F(double x0, double dx = 8e-3); // dx ~ 8e-3
 
     private:
         Functor& F;

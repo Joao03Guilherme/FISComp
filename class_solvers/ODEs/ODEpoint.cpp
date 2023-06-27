@@ -1,26 +1,17 @@
-# include "ODEpoint.hpp"
+#include "ODEpoint.hpp"
 
-void ODEpoint::SetODEpoint(double t_, Xvar& p) {
-    t = t_;
-    X() = p.X();
-}
+ODEpoint::ODEpoint(){ time = -1;}
 
-void ODEpoint::SetODEpoint(double t_, const std::initializer_list<double>& v) {
-    t = t_;
-    X() = v;
-}
-
-void ODEpoint::SetODEpoint(double t_, std::vector<double> v) {
-    t = t_;
-    X() = v;
-}
-
-ODEpoint ODEpoint::operator+(ODEpoint& p) {
-    ODEpoint q(t, X());
-
-    q.T() += p.T();
-    for (int i = 0; i < X().size(); i++) {
-        q[i] += p[i];
+std::ostream& operator << (std::ostream& s, const ODEpoint& P){
+    s << "[t = " << P.time << ", (";
+    for (int i =0; i<P.x.size()-1; i++){
+        s << P.x[i] << ", ";
     }
-    return q;
+    s << P.x.back() << ")]";
+    return s;
+}
+
+void ODEpoint::SetODEpoint(double t_, std::vector<double> v){
+    time = t_;
+    x = v;
 }

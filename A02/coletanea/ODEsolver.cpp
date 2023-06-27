@@ -15,7 +15,6 @@ const vector<ODEpoint>& ODEsolver::Euler(ODEpoint i, double step, double T){
     }
 
     MS["euler"] = V;
-
     return MS["euler"];
 }
 

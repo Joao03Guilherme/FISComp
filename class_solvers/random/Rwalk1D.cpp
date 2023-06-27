@@ -2,6 +2,7 @@
 # include "TRandom.h"
 # include "TGraph.h"
 # include "TAxis.h"
+# include <time.h>
 
 using namespace std;
 
@@ -13,7 +14,7 @@ Rwalk1D::Rwalk1D(int N, double x, double pL, double pR, double dt, double dx) : 
 }
 
 void Rwalk1D::Run(int nsteps) {
-    TRandom gen;
+    TRandom gen(time(NULL));
     for (int i=0; i < nsteps; i++) {
         for (auto p : mT) {
             double r = gen.Rndm(); // random number between 0 and 1
